@@ -23,7 +23,8 @@ export function ProblemFormModal({ problem, onClose }: Props) {
   const [status, setStatus] = useState<Status>(problem?.status ?? Status.Unsolved);
   const [categoryId, setCategoryId] = useState(problem?.category?.id ?? '');
   const [tagIds, setTagIds] = useState<string[]>(problem?.tags.map((t) => t.id) ?? []);
-  const [notes, setNotes] = useState(problem?.notes ?? '');
+  const [keyTechniques, setKeyTechniques] = useState(problem?.keyTechniques ?? '');
+  const [performanceComment, setPerformanceComment] = useState(problem?.performanceComment ?? '');
   const [timesAttempted, setTimesAttempted] = useState(problem?.timesAttempted ?? 0);
 
   const isPending = createProblem.isPending || updateProblem.isPending;
@@ -37,7 +38,8 @@ export function ProblemFormModal({ problem, onClose }: Props) {
       status,
       categoryId: categoryId || null,
       tagIds,
-      notes: notes.trim() || undefined,
+      keyTechniques: keyTechniques.trim() || undefined,
+      performanceComment: performanceComment.trim() || undefined,
       timesAttempted,
     };
     if (isEdit) {
@@ -55,8 +57,8 @@ export function ProblemFormModal({ problem, onClose }: Props) {
   };
 
   const inputClass =
-    'w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-200';
-  const labelClass = 'block text-xs font-medium text-gray-600 mb-1';
+    'w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-colors';
+  const labelClass = 'block text-xs font-medium text-zinc-500 mb-1.5';
 
   return (
     <Modal title={isEdit ? 'Edit Problem' : 'Add Problem'} onClose={onClose}>
@@ -141,13 +143,24 @@ export function ProblemFormModal({ problem, onClose }: Props) {
         </div>
 
         <div>
-          <label className={labelClass}>Notes</label>
+          <label className={labelClass}>Key Techniques &amp; Patterns</label>
           <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={4}
+            value={keyTechniques}
+            onChange={(e) => setKeyTechniques(e.target.value)}
+            rows={3}
             className={`${inputClass} font-mono resize-y`}
-            placeholder="Key techniques, approach, gotchas..."
+            placeholder="e.g. Two pointers, sliding window, hashmap for O(1) lookup..."
+          />
+        </div>
+
+        <div>
+          <label className={labelClass}>Performance Comment</label>
+          <textarea
+            value={performanceComment}
+            onChange={(e) => setPerformanceComment(e.target.value)}
+            rows={2}
+            className={`${inputClass} resize-y`}
+            placeholder="e.g. Solved quickly, ugly brute-force, took too long on edge cases..."
           />
         </div>
 
@@ -161,7 +174,7 @@ export function ProblemFormModal({ problem, onClose }: Props) {
           <button
             type="submit"
             disabled={isPending}
-            className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+            className="flex-1 py-2 bg-blue-500 hover:bg-blue-400 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
           >
             {isPending ? 'Saving...' : isEdit ? 'Save Changes' : 'Add Problem'}
           </button>

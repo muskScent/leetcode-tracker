@@ -73,7 +73,7 @@ async function seed() {
       status: Status.Solved,
       category: arrays,
       tags: [twoPointers],
-      notes: 'Use hashmap to store complement. O(n) time, O(n) space.',
+      keyTechniques: 'Use hashmap to store complement. O(n) time, O(n) space.',
       timesAttempted: 3,
     },
     {
@@ -84,7 +84,7 @@ async function seed() {
       status: Status.Solved,
       category: arrays,
       tags: [slidingWindow],
-      notes: 'Track min price seen so far, compute max profit at each step.',
+      keyTechniques: 'Track min price seen so far, compute max profit at each step.',
       timesAttempted: 2,
     },
     {
@@ -94,7 +94,7 @@ async function seed() {
       status: Status.Solved,
       category: arrays,
       tags: [],
-      notes: 'Add to a Set, return true if already present.',
+      keyTechniques: 'Add to a Set, return true if already present.',
       timesAttempted: 1,
     },
     {
@@ -104,7 +104,7 @@ async function seed() {
       status: Status.Solved,
       category: arrays,
       tags: [greedy],
-      notes: "Kadane's algorithm. Reset currentSum to 0 when it goes negative.",
+      keyTechniques: "Kadane's algorithm. Reset currentSum to 0 when it goes negative.",
       timesAttempted: 2,
     },
     {
@@ -114,7 +114,7 @@ async function seed() {
       status: Status.Attempted,
       category: arrays,
       tags: [twoPointers, mustRevisit],
-      notes: 'Sort first, then fix one element and use two-pointer. Handle duplicates carefully by skipping equal adjacent elements.',
+      keyTechniques: 'Sort first, then fix one element and use two-pointer. Handle duplicates carefully by skipping equal adjacent elements.',
       timesAttempted: 3,
     },
     {
@@ -124,7 +124,7 @@ async function seed() {
       status: Status.Solved,
       category: strings,
       tags: [],
-      notes: 'Character count map or sort both strings.',
+      keyTechniques: 'Character count map or sort both strings.',
       timesAttempted: 1,
     },
     {
@@ -135,7 +135,7 @@ async function seed() {
       status: Status.Solved,
       category: strings,
       tags: [slidingWindow],
-      notes: 'Sliding window with a Set. Move left pointer when duplicate detected.',
+      keyTechniques: 'Sliding window with a Set. Move left pointer when duplicate detected.',
       timesAttempted: 2,
     },
     {
@@ -146,7 +146,7 @@ async function seed() {
       status: Status.Attempted,
       category: strings,
       tags: [slidingWindow, mustRevisit],
-      notes: 'Sliding window with two freq maps. Track "formed" count vs "required". Shrink from left when all chars satisfied.',
+      keyTechniques: 'Sliding window with two freq maps. Track "formed" count vs "required". Shrink from left when all chars satisfied.',
       timesAttempted: 2,
     },
     {
@@ -156,7 +156,7 @@ async function seed() {
       status: Status.Solved,
       category: trees,
       tags: [dfs],
-      notes: 'Recursive: swap left/right, then recurse on both children.',
+      keyTechniques: 'Recursive: swap left/right, then recurse on both children.',
       timesAttempted: 1,
     },
     {
@@ -167,7 +167,7 @@ async function seed() {
       status: Status.Solved,
       category: trees,
       tags: [dfs, bfs],
-      notes: 'DFS: 1 + max(left, right). BFS: count levels.',
+      keyTechniques: 'DFS: 1 + max(left, right). BFS: count levels.',
       timesAttempted: 1,
     },
     {
@@ -178,7 +178,7 @@ async function seed() {
       status: Status.Attempted,
       category: trees,
       tags: [bfs],
-      notes: 'Queue-based BFS. Snapshot queue.length at start of each level.',
+      keyTechniques: 'Queue-based BFS. Snapshot queue.length at start of each level.',
       timesAttempted: 2,
     },
     {
@@ -188,7 +188,7 @@ async function seed() {
       status: Status.Solved,
       category: graphs,
       tags: [dfs, bfs],
-      notes: 'DFS from each unvisited "1" cell, mark visited by setting to "0".',
+      keyTechniques: 'DFS from each unvisited "1" cell, mark visited by setting to "0".',
       timesAttempted: 2,
     },
     {
@@ -198,7 +198,7 @@ async function seed() {
       status: Status.Attempted,
       category: graphs,
       tags: [dfs, mustRevisit],
-      notes: 'Cycle detection in directed graph. 3-color DFS: 0=unvisited, 1=visiting, 2=done.',
+      keyTechniques: 'Cycle detection in directed graph. 3-color DFS: 0=unvisited, 1=visiting, 2=done.',
       timesAttempted: 3,
     },
     {
@@ -208,7 +208,7 @@ async function seed() {
       status: Status.Solved,
       category: dp,
       tags: [memoization],
-      notes: 'Fibonacci: dp[i] = dp[i-1] + dp[i-2]. Can optimize to O(1) space.',
+      keyTechniques: 'Fibonacci: dp[i] = dp[i-1] + dp[i-2]. Can optimize to O(1) space.',
       timesAttempted: 1,
     },
     {
@@ -218,7 +218,7 @@ async function seed() {
       status: Status.Attempted,
       category: dp,
       tags: [memoization, mustRevisit],
-      notes: 'Bottom-up DP. dp[amount] = min coins. Init with Infinity, base dp[0]=0.',
+      keyTechniques: 'Bottom-up DP. dp[amount] = min coins. Init with Infinity, base dp[0]=0.',
       timesAttempted: 3,
     },
     {
@@ -229,7 +229,7 @@ async function seed() {
       status: Status.Unsolved,
       category: dp,
       tags: [divideConquer],
-      notes: '',
+      keyTechniques: '',
       timesAttempted: 0,
     },
     {
@@ -239,7 +239,7 @@ async function seed() {
       status: Status.Solved,
       category: binarySearch,
       tags: [],
-      notes: 'Classic template: lo=0, hi=n-1, mid=(lo+hi)>>1.',
+      keyTechniques: 'Classic template: lo=0, hi=n-1, mid=(lo+hi)>>1.',
       timesAttempted: 1,
     },
     {
@@ -250,7 +250,7 @@ async function seed() {
       status: Status.Attempted,
       category: binarySearch,
       tags: [mustRevisit],
-      notes: 'Determine which half is sorted, then decide which half to search.',
+      keyTechniques: 'Determine which half is sorted, then decide which half to search.',
       timesAttempted: 3,
     },
   ];

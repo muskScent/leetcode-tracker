@@ -1,14 +1,14 @@
 import { Difficulty } from '../types';
 
 const styles: Record<Difficulty, string> = {
-  [Difficulty.Easy]: 'bg-green-100 text-green-700 border border-green-200',
-  [Difficulty.Medium]: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
-  [Difficulty.Hard]: 'bg-red-100 text-red-700 border border-red-200',
+  [Difficulty.Easy]: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20',
+  [Difficulty.Medium]: 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20',
+  [Difficulty.Hard]: 'bg-rose-50 text-rose-700 ring-1 ring-rose-600/20',
 };
 
 export function DifficultyBadge({ difficulty }: { difficulty: Difficulty }) {
   return (
-    <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${styles[difficulty]}`}>
+    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${styles[difficulty]}`}>
       {difficulty}
     </span>
   );

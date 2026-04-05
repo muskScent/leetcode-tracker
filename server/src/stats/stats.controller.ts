@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { StatsService } from './stats.service';
 
 @Controller('api/stats')
@@ -6,7 +6,8 @@ export class StatsController {
   constructor(private readonly statsService: StatsService) {}
 
   @Get('overview')
-  getOverview() {
-    return this.statsService.getOverview();
+  getOverview(@Query('tagIds') tagIds?: string) {
+    const ids = tagIds ? tagIds.split(',').filter(Boolean) : undefined;
+    return this.statsService.getOverview(ids);
   }
 }

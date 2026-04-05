@@ -78,18 +78,30 @@ function ProblemRow({
   return (
     <tr
       onClick={onSelect}
-      className="group border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+      className="group border-b border-zinc-100 hover:bg-zinc-50 cursor-pointer transition-colors"
     >
       <td className="px-4 py-3">
         <div className="flex items-center gap-1.5">
           <span className="font-medium text-gray-900 text-sm">{problem.title}</span>
-          {problem.notes && (
-            <div className="relative group/notes">
-              <span className="text-gray-400 hover:text-gray-600 cursor-default select-none text-xs leading-none">
-                ≡
+          {problem.keyTechniques && (
+            <div className="relative group/techniques">
+              <span className="text-indigo-400 hover:text-indigo-600 cursor-pointer select-none text-2xl leading-none" title="Key Techniques">
+                ⚡
               </span>
-              <div className="pointer-events-none absolute left-0 top-full mt-1.5 w-72 bg-gray-900 text-gray-100 text-xs rounded-lg p-3 shadow-xl z-50 hidden group-hover/notes:block whitespace-pre-wrap break-words">
-                {problem.notes}
+              <div className="pointer-events-none absolute left-0 top-full mt-1.5 w-80 bg-gray-900 text-gray-100 text-xs rounded-lg p-3 shadow-xl z-50 hidden group-hover/techniques:block">
+                <p className="font-semibold text-indigo-300 mb-1">Key Techniques &amp; Patterns</p>
+                <p className="whitespace-pre-wrap break-words font-mono">{problem.keyTechniques}</p>
+              </div>
+            </div>
+          )}
+          {problem.performanceComment && (
+            <div className="relative group/perf">
+              <span className="text-amber-400 hover:text-amber-600 cursor-pointer select-none text-2xl leading-none" title="Performance Comment">
+                ★
+              </span>
+              <div className="pointer-events-none absolute left-0 top-full mt-1.5 w-72 bg-gray-900 text-gray-100 text-xs rounded-lg p-3 shadow-xl z-50 hidden group-hover/perf:block">
+                <p className="font-semibold text-amber-300 mb-1">Performance</p>
+                <p className="whitespace-pre-wrap break-words">{problem.performanceComment}</p>
               </div>
             </div>
           )}
@@ -136,10 +148,10 @@ function ProblemRow({
       <td className="px-4 py-3">
         <button
           onClick={onDelete}
-          className="opacity-0 group-hover:opacity-100 px-2 py-1 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-all"
+          className="opacity-0 group-hover:opacity-100 w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all text-base"
           title="Delete problem"
         >
-          Delete
+          ×
         </button>
       </td>
     </tr>
@@ -181,7 +193,7 @@ export function Problems() {
         </div>
         <button
           onClick={() => setShowAdd(true)}
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors"
+          className="px-4 py-2 bg-blue-500 hover:bg-blue-400 text-white text-sm font-medium rounded-lg transition-colors"
         >
           + Add Problem
         </button>
@@ -209,7 +221,7 @@ export function Problems() {
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <tr className="border-b border-zinc-200 bg-zinc-50 text-xs font-medium text-zinc-400 uppercase tracking-wider">
                 <th className="px-4 py-3 text-left">Title</th>
                 <th className="px-4 py-3 text-left">Category</th>
                 <th className="px-4 py-3 text-left">Difficulty</th>

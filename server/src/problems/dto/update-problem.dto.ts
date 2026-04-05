@@ -39,7 +39,11 @@ export class UpdateProblemDto {
 
   @IsOptional()
   @IsString()
-  notes?: string;
+  keyTechniques?: string;
+
+  @IsOptional()
+  @IsString()
+  performanceComment?: string;
 
   @IsOptional()
   @IsInt()

@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { statsApi } from '../api/stats';
 
-export function useStats() {
+export function useStats(tagIds?: string[]) {
   return useQuery({
-    queryKey: ['stats'],
-    queryFn: statsApi.getOverview,
+    queryKey: ['stats', tagIds],
+    queryFn: () => statsApi.getOverview(tagIds),
   });
 }

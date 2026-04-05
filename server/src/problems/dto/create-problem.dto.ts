@@ -37,7 +37,11 @@ export class CreateProblemDto {
 
   @IsOptional()
   @IsString()
-  notes?: string;
+  keyTechniques?: string;
+
+  @IsOptional()
+  @IsString()
+  performanceComment?: string;
 
   @IsOptional()
   @IsInt()

@@ -19,26 +19,27 @@ export class StatsService {
     private categoryRepository: Repository<Category>,
   ) {}
 
-  async getOverview() {
-    const problems = await this.problemRepository.find({
-      relations: ['category'],
-    });
+  async getOverview(tagIds?: string[]) {
+    const query = this.problemRepository
+      .createQueryBuilder('problem')
+      .leftJoinAndSelect('problem.category', 'category')
+      .leftJoinAndSelect('problem.tags', 'tags');
+
+    if (tagIds && tagIds.length > 0) {
+      query.where('tags.id IN (:...tagIds)', { tagIds });
+    }
+
+    const problems = await query.getMany();
 
     const totalProblems = problems.length;
-    const totalSolved = problems.filter(
-      (p) => p.status === Status.Solved,
-    ).length;
+    const totalSolved = problems.filter((p) => p.status === Status.Solved).length;
     const overallCompletionPercent =
-      totalProblems > 0
-        ? Math.round((totalSolved / totalProblems) * 100)
-        : 0;
+      totalProblems > 0 ? Math.round((totalSolved / totalProblems) * 100) : 0;
 
     const byDifficulty: Record<string, DifficultyStats> = {};
     for (const diff of Object.values(Difficulty)) {
       const diffProblems = problems.filter((p) => p.difficulty === diff);
-      const diffSolved = diffProblems.filter(
-        (p) => p.status === Status.Solved,
-      ).length;
+      const diffSolved = diffProblems.filter((p) => p.status === Status.Solved).length;
       byDifficulty[diff] = {
         total: diffProblems.length,
         solved: diffSolved,
@@ -49,48 +50,53 @@ export class StatsService {
       };
     }
 
-    const categories = await this.categoryRepository.find({
-      relations: ['problems'],
-      order: { name: 'ASC' },
-    });
+    // Build category map from filtered problems
+    const categoryMap = new Map<string, { name: string; problems: Problem[] }>();
 
-    const byCategory = categories.map((cat) => {
-      const catProblems = cat.problems ?? [];
-      const catSolved = catProblems.filter(
-        (p) => p.status === Status.Solved,
-      ).length;
-
-      const byDiff: Record<string, DifficultyStats> = {};
-      for (const diff of Object.values(Difficulty)) {
-        const dp = catProblems.filter((p) => p.difficulty === diff);
-        const ds = dp.filter((p) => p.status === Status.Solved).length;
-        byDiff[diff] = {
-          total: dp.length,
-          solved: ds,
-          percent:
-            dp.length > 0 ? Math.round((ds / dp.length) * 100) : 0,
-        };
+    // When unfiltered, include all categories (even empty ones)
+    if (!tagIds || tagIds.length === 0) {
+      const allCategories = await this.categoryRepository.find({ order: { name: 'ASC' } });
+      for (const cat of allCategories) {
+        categoryMap.set(cat.id, { name: cat.name, problems: [] });
       }
+    }
 
-      return {
-        categoryId: cat.id,
-        categoryName: cat.name,
-        total: catProblems.length,
-        solved: catSolved,
-        percent:
-          catProblems.length > 0
-            ? Math.round((catSolved / catProblems.length) * 100)
-            : 0,
-        byDifficulty: byDiff,
-      };
-    });
+    for (const p of problems) {
+      if (p.category) {
+        if (!categoryMap.has(p.category.id)) {
+          categoryMap.set(p.category.id, { name: p.category.name, problems: [] });
+        }
+        categoryMap.get(p.category.id)!.problems.push(p);
+      }
+    }
 
-    return {
-      totalProblems,
-      totalSolved,
-      overallCompletionPercent,
-      byDifficulty,
-      byCategory,
-    };
+    const byCategory = [...categoryMap.entries()]
+      .sort(([, a], [, b]) => a.name.localeCompare(b.name))
+      .map(([id, { name, problems: catProblems }]) => {
+        const catSolved = catProblems.filter((p) => p.status === Status.Solved).length;
+        const byDiff: Record<string, DifficultyStats> = {};
+        for (const diff of Object.values(Difficulty)) {
+          const dp = catProblems.filter((p) => p.difficulty === diff);
+          const ds = dp.filter((p) => p.status === Status.Solved).length;
+          byDiff[diff] = {
+            total: dp.length,
+            solved: ds,
+            percent: dp.length > 0 ? Math.round((ds / dp.length) * 100) : 0,
+          };
+        }
+        return {
+          categoryId: id,
+          categoryName: name,
+          total: catProblems.length,
+          solved: catSolved,
+          percent:
+            catProblems.length > 0
+              ? Math.round((catSolved / catProblems.length) * 100)
+              : 0,
+          byDifficulty: byDiff,
+        };
+      });
+
+    return { totalProblems, totalSolved, overallCompletionPercent, byDifficulty, byCategory };
   }
 }

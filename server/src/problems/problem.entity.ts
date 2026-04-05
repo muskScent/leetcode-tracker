@@ -51,7 +51,10 @@ export class Problem {
   tags: Tag[];
 
   @Column({ type: 'text', nullable: true })
-  notes: string | null;
+  keyTechniques: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  performanceComment: string | null;
 
   @Column({ default: 0 })
   timesAttempted: number;

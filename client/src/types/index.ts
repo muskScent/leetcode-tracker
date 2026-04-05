@@ -32,7 +32,8 @@ export interface Problem {
   status: Status;
   category: Category | null;
   tags: Tag[];
-  notes: string | null;
+  keyTechniques: string | null;
+  performanceComment: string | null;
   timesAttempted: number;
   createdAt: string;
   updatedAt: string;
@@ -68,7 +69,8 @@ export interface CreateProblemDto {
   status?: Status;
   categoryId?: string | null;
   tagIds?: string[];
-  notes?: string;
+  keyTechniques?: string;
+  performanceComment?: string;
   timesAttempted?: number;
 }
 
