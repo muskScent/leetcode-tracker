@@ -3,13 +3,22 @@ import { useStats } from '../hooks/useStats';
 import { useTags } from '../hooks/useTags';
 import { ProgressBar } from '../components/ProgressBar';
 import { ProblemFormModal } from '../components/ProblemFormModal';
-import { Difficulty } from '../types';
+import { Difficulty, Performance, PerformanceStats } from '../types';
 
 const difficultyColors: Record<string, string> = {
   Easy: 'bg-emerald-400',
   Medium: 'bg-amber-400',
   Hard: 'bg-rose-500',
 };
+
+const PERFORMANCE_BUCKETS: { key: string; label: string; color: string; text: string }[] = [
+  { key: Performance.Good, label: 'Good', color: 'bg-emerald-500', text: 'text-emerald-600' },
+  { key: Performance.Average, label: 'Average', color: 'bg-amber-400', text: 'text-amber-600' },
+  { key: Performance.Bad, label: 'Bad', color: 'bg-rose-500', text: 'text-rose-600' },
+  { key: 'Unrated', label: 'Unrated', color: 'bg-zinc-300', text: 'text-zinc-500' },
+];
+
+const EMPTY_PERFORMANCE: PerformanceStats = { count: 0, percent: 0 };
 
 export function Dashboard() {
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
@@ -57,6 +66,9 @@ export function Dashboard() {
   }
 
   if (!stats) return null;
+
+  const performanceStats = (key: string): PerformanceStats =>
+    stats.byPerformance?.[key] ?? EMPTY_PERFORMANCE;
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -174,6 +186,57 @@ export function Dashboard() {
             </div>
           );
         })}
+      </div>
+
+      {/* Performance Breakdown */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6 shadow-sm">
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+            Performance
+          </h2>
+          <span className="text-xs text-gray-400">
+            of {stats.totalSolved} solved problem{stats.totalSolved === 1 ? '' : 's'}
+          </span>
+        </div>
+
+        {stats.totalSolved === 0 ? (
+          <p className="text-sm text-gray-400">No solved problems yet</p>
+        ) : (
+          <>
+            <div className="flex w-full h-2 rounded-full overflow-hidden bg-zinc-100">
+              {PERFORMANCE_BUCKETS.map(({ key, color }) => {
+                const s = performanceStats(key);
+                if (s.count === 0) return null;
+                return (
+                  <div
+                    key={key}
+                    className={`${color} h-2 transition-all duration-500`}
+                    style={{ width: `${(s.count / stats.totalSolved) * 100}%` }}
+                  />
+                );
+              })}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+              {PERFORMANCE_BUCKETS.map(({ key, label, color, text }) => {
+                const s = performanceStats(key);
+                return (
+                  <div key={key} className="flex flex-col gap-0.5">
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-gray-600">
+                      <span className={`w-2 h-2 rounded-full ${color}`} />
+                      {label}
+                    </span>
+                    <span className={`text-xl font-bold tabular-nums ${text}`}>
+                      {s.percent}%
+                    </span>
+                    <span className="text-xs text-gray-400 tabular-nums">
+                      {s.count} problem{s.count === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Category Cards */}

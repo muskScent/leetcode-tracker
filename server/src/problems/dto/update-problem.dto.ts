@@ -8,7 +8,7 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
-import { Difficulty, Status } from '../problem.entity';
+import { Difficulty, Performance, Status } from '../problem.entity';
 
 export class UpdateProblemDto {
   @IsOptional()
@@ -27,6 +27,10 @@ export class UpdateProblemDto {
   @IsOptional()
   @IsEnum(Status)
   status?: Status;
+
+  @IsOptional()
+  @IsEnum(Performance)
+  performance?: Performance | null;
 
   @IsOptional()
   @IsUUID()

@@ -25,6 +25,7 @@ export function useDeleteTag() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['tags'] });
       qc.invalidateQueries({ queryKey: ['problems'] });
+      qc.invalidateQueries({ queryKey: ['notes'] });
     },
   });
 }

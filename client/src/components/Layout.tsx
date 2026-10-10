@@ -4,8 +4,10 @@ import { useAuth } from '../context/AuthContext';
 const navItems = [
   { to: '/', label: 'Dashboard', icon: '▦' },
   { to: '/problems', label: 'Problems', icon: '≡' },
+  { to: '/review', label: 'Review', icon: '↻' },
   { to: '/categories', label: 'Categories', icon: '◈' },
   { to: '/tags', label: 'Tags', icon: '⊕' },
+  { to: '/notes', label: 'Notes', icon: '✎' },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {

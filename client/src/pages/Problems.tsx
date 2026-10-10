@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useProblems, useUpdateProblem, useDeleteProblem } from '../hooks/useProblems';
 import { useCategories } from '../hooks/useCategories';
+import { useTags } from '../hooks/useTags';
 import { DifficultyBadge } from '../components/DifficultyBadge';
 import { StatusBadge } from '../components/StatusBadge';
 import { ProblemFormModal } from '../components/ProblemFormModal';
-import { Problem, Difficulty, Status, FilterProblemsParams } from '../types';
+import { Problem, Difficulty, Status, Performance, FilterProblemsParams, Tag } from '../types';
 
 const STATUS_CYCLE: Record<Status, Status> = {
   [Status.Unsolved]: Status.Attempted,
@@ -12,14 +13,34 @@ const STATUS_CYCLE: Record<Status, Status> = {
   [Status.Solved]: Status.Unsolved,
 };
 
+const PAGE_SIZE = 10;
+
+/** Page numbers to render: first, last, and the current page ±1, with '…' for the gaps. */
+function pageWindow(current: number, total: number): (number | '…')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages = new Set([1, total, current, current - 1, current + 1]);
+  const visible = [...pages].filter((n) => n >= 1 && n <= total).sort((a, b) => a - b);
+  return visible.flatMap((n, i) =>
+    i > 0 && n - visible[i - 1] > 1 ? ['…' as const, n] : [n],
+  );
+}
+
+const PERFORMANCE_ROW_CLASS: Record<Performance, string> = {
+  [Performance.Good]: 'bg-emerald-50 hover:bg-emerald-100',
+  [Performance.Average]: 'bg-amber-50 hover:bg-amber-100',
+  [Performance.Bad]: 'bg-red-50 hover:bg-red-100',
+};
+
 function ProblemsFilters({
   filters,
   onChange,
   categories,
+  tags,
 }: {
   filters: FilterProblemsParams;
   onChange: (f: FilterProblemsParams) => void;
   categories: { id: string; name: string }[];
+  tags: Tag[];
 }) {
   const set = (key: keyof FilterProblemsParams, value: string) =>
     onChange({ ...filters, [key]: value || undefined });
@@ -60,6 +81,14 @@ function ProblemsFilters({
         <option value="">All Statuses</option>
         {Object.values(Status).map((s) => <option key={s} value={s}>{s}</option>)}
       </select>
+      <select
+        value={filters.tag ?? ''}
+        onChange={(e) => set('tag', e.target.value)}
+        className={selectClass}
+      >
+        <option value="">All Tags</option>
+        {tags.map((t) => <option key={t.id} value={t.name}>{t.name}</option>)}
+      </select>
     </div>
   );
 }
@@ -69,16 +98,20 @@ function ProblemRow({
   onSelect,
   onStatusToggle,
   onDelete,
+  onTagClick,
 }: {
   problem: Problem;
   onSelect: () => void;
   onStatusToggle: (e: React.MouseEvent) => void;
   onDelete: (e: React.MouseEvent) => void;
+  onTagClick: (e: React.MouseEvent, tag: Tag) => void;
 }) {
   return (
     <tr
       onClick={onSelect}
-      className="group border-b border-zinc-100 hover:bg-zinc-50 cursor-pointer transition-colors"
+      className={`group border-b border-zinc-100 cursor-pointer transition-colors ${
+        problem.performance ? PERFORMANCE_ROW_CLASS[problem.performance] : 'hover:bg-zinc-50'
+      }`}
     >
       <td className="px-4 py-3">
         <div className="flex items-center gap-1.5">
@@ -130,12 +163,14 @@ function ProblemRow({
       <td className="px-4 py-3">
         <div className="flex flex-wrap gap-1">
           {problem.tags.slice(0, 3).map((tag) => (
-            <span
+            <button
               key={tag.id}
-              className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-xs"
+              onClick={(e) => onTagClick(e, tag)}
+              title={`Filter by ${tag.name}`}
+              className="px-1.5 py-0.5 bg-gray-100 hover:bg-indigo-100 text-gray-600 hover:text-indigo-700 rounded text-xs transition-colors"
             >
               {tag.name}
-            </span>
+            </button>
           ))}
           {problem.tags.length > 3 && (
             <span className="text-xs text-gray-400">+{problem.tags.length - 3}</span>
@@ -160,11 +195,13 @@ function ProblemRow({
 
 export function Problems() {
   const [filters, setFilters] = useState<FilterProblemsParams>({});
+  const [page, setPage] = useState(1);
   const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
   const [showAdd, setShowAdd] = useState(false);
 
   const { data: problems = [], isLoading } = useProblems(filters);
   const { data: categories = [] } = useCategories();
+  const { data: tags = [] } = useTags();
   const updateProblem = useUpdateProblem();
   const deleteProblem = useDeleteProblem();
 
@@ -181,6 +218,26 @@ export function Problems() {
       data: { status: STATUS_CYCLE[problem.status] },
     });
   };
+
+  const handleTagClick = (e: React.MouseEvent, tag: Tag) => {
+    e.stopPropagation();
+    setFilters((f) => ({
+      ...f,
+      tag: f.tag === tag.name ? undefined : tag.name,
+    }));
+    setPage(1);
+  };
+
+  const handleFiltersChange = (f: FilterProblemsParams) => {
+    setFilters(f);
+    setPage(1);
+  };
+
+  const totalPages = Math.max(1, Math.ceil(problems.length / PAGE_SIZE));
+  // Clamp so deleting the last row of the last page doesn't strand us on an empty page.
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageProblems = problems.slice(pageStart, pageStart + PAGE_SIZE);
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -201,11 +258,12 @@ export function Problems() {
 
       <ProblemsFilters
         filters={filters}
-        onChange={setFilters}
+        onChange={handleFiltersChange}
         categories={categories}
+        tags={tags}
       />
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-visible">
         {isLoading ? (
           <div className="p-8 text-center text-gray-400">Loading...</div>
         ) : problems.length === 0 ? (
@@ -222,29 +280,73 @@ export function Problems() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-zinc-200 bg-zinc-50 text-xs font-medium text-zinc-400 uppercase tracking-wider">
-                <th className="px-4 py-3 text-left">Title</th>
+                <th className="px-4 py-3 text-left rounded-tl-xl">Title</th>
                 <th className="px-4 py-3 text-left">Category</th>
                 <th className="px-4 py-3 text-left">Difficulty</th>
                 <th className="px-4 py-3 text-left">Status</th>
                 <th className="px-4 py-3 text-left">Tags</th>
                 <th className="px-4 py-3 text-left">Updated</th>
-                <th className="px-4 py-3" />
+                <th className="px-4 py-3 rounded-tr-xl" />
               </tr>
             </thead>
             <tbody>
-              {problems.map((p) => (
+              {pageProblems.map((p) => (
                 <ProblemRow
                   key={p.id}
                   problem={p}
                   onSelect={() => setSelectedProblem(p)}
                   onStatusToggle={(e) => handleStatusToggle(e, p)}
                   onDelete={(e) => handleDelete(e, p)}
+                  onTagClick={handleTagClick}
                 />
               ))}
             </tbody>
           </table>
         )}
       </div>
+
+      {!isLoading && problems.length > PAGE_SIZE && (
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-xs text-gray-500 tabular-nums">
+            Showing {pageStart + 1}–{pageStart + pageProblems.length} of {problems.length}
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
+            >
+              Previous
+            </button>
+            {pageWindow(currentPage, totalPages).map((n, i) =>
+              n === '…' ? (
+                <span key={`gap-${i}`} className="w-6 text-center text-sm text-gray-400">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={n}
+                  onClick={() => setPage(n)}
+                  className={`w-8 h-8 text-sm rounded-lg tabular-nums transition-colors ${
+                    n === currentPage
+                      ? 'bg-blue-500 text-white font-medium'
+                      : 'text-gray-600 bg-white border border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  {n}
+                </button>
+              ),
+            )}
+            <button
+              onClick={() => setPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:hover:bg-white transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {selectedProblem && (
         <ProblemFormModal

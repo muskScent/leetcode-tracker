@@ -23,6 +23,12 @@ export enum Status {
   Solved = 'Solved',
 }
 
+export enum Performance {
+  Good = 'Good',
+  Average = 'Average',
+  Bad = 'Bad',
+}
+
 @Entity()
 export class Problem {
   @PrimaryGeneratedColumn('uuid')
@@ -39,6 +45,9 @@ export class Problem {
 
   @Column({ type: 'simple-enum', enum: Status, default: Status.Unsolved })
   status: Status;
+
+  @Column({ type: 'simple-enum', enum: Performance, nullable: true })
+  performance: Performance | null;
 
   @ManyToOne(() => Category, (category) => category.problems, {
     nullable: true,
@@ -58,6 +67,15 @@ export class Problem {
 
   @Column({ default: 0 })
   timesAttempted: number;
+
+  @Column({ type: 'datetime', nullable: true })
+  nextReviewAt: Date | null;
+
+  @Column({ type: 'datetime', nullable: true })
+  lastReviewedAt: Date | null;
+
+  @Column({ default: 0 })
+  reviewInterval: number;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -6,6 +6,8 @@ import { Dashboard } from './pages/Dashboard';
 import { Problems } from './pages/Problems';
 import { Categories } from './pages/Categories';
 import { Tags } from './pages/Tags';
+import { Notes } from './pages/Notes';
+import { Review } from './pages/Review';
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -21,6 +23,8 @@ function AppRoutes() {
         <Route path="/problems" element={<Problems />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/tags" element={<Tags />} />
+        <Route path="/notes" element={<Notes />} />
+        <Route path="/review" element={<Review />} />
       </Routes>
     </Layout>
   );

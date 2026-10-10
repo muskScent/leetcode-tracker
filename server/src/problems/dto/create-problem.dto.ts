@@ -8,7 +8,7 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
-import { Difficulty, Status } from '../problem.entity';
+import { Difficulty, Performance, Status } from '../problem.entity';
 
 export class CreateProblemDto {
   @IsString()
@@ -25,6 +25,10 @@ export class CreateProblemDto {
   @IsOptional()
   @IsEnum(Status)
   status?: Status;
+
+  @IsOptional()
+  @IsEnum(Performance)
+  performance?: Performance | null;
 
   @IsOptional()
   @IsUUID()

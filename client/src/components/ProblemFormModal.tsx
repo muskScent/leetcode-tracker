@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { Modal } from './Modal';
 import { TagSelect } from './TagSelect';
-import { Problem, Difficulty, Status, CreateProblemDto } from '../types';
+import { Problem, Difficulty, Status, Performance, CreateProblemDto } from '../types';
 import { useCategories } from '../hooks/useCategories';
 import { useCreateProblem, useUpdateProblem, useDeleteProblem } from '../hooks/useProblems';
 
@@ -21,6 +21,7 @@ export function ProblemFormModal({ problem, onClose }: Props) {
   const [url, setUrl] = useState(problem?.leetcodeUrl ?? '');
   const [difficulty, setDifficulty] = useState<Difficulty>(problem?.difficulty ?? Difficulty.Medium);
   const [status, setStatus] = useState<Status>(problem?.status ?? Status.Unsolved);
+  const [performance, setPerformance] = useState<Performance | ''>(problem?.performance ?? '');
   const [categoryId, setCategoryId] = useState(problem?.category?.id ?? '');
   const [tagIds, setTagIds] = useState<string[]>(problem?.tags.map((t) => t.id) ?? []);
   const [keyTechniques, setKeyTechniques] = useState(problem?.keyTechniques ?? '');
@@ -36,6 +37,7 @@ export function ProblemFormModal({ problem, onClose }: Props) {
       leetcodeUrl: url.trim() || undefined,
       difficulty,
       status,
+      performance: performance || null,
       categoryId: categoryId || null,
       tagIds,
       keyTechniques: keyTechniques.trim() || undefined,
@@ -84,7 +86,7 @@ export function ProblemFormModal({ problem, onClose }: Props) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Difficulty</label>
             <select
@@ -106,6 +108,19 @@ export function ProblemFormModal({ problem, onClose }: Props) {
             >
               {Object.values(Status).map((s) => (
                 <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelClass}>Performance</label>
+            <select
+              value={performance}
+              onChange={(e) => setPerformance(e.target.value as Performance | '')}
+              className={inputClass}
+            >
+              <option value="">— None —</option>
+              {Object.values(Performance).map((p) => (
+                <option key={p} value={p}>{p}</option>
               ))}
             </select>
           </div>

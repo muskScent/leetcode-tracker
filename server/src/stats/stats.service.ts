@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Problem, Difficulty, Status } from '../problems/problem.entity';
+import {
+  Problem,
+  Difficulty,
+  Status,
+  Performance,
+} from '../problems/problem.entity';
 import { Category } from '../categories/category.entity';
 
 export interface DifficultyStats {
@@ -9,6 +14,13 @@ export interface DifficultyStats {
   solved: number;
   percent: number;
 }
+
+export interface PerformanceStats {
+  count: number;
+  percent: number;
+}
+
+export const UNRATED_PERFORMANCE = 'Unrated';
 
 @Injectable()
 export class StatsService {
@@ -49,6 +61,22 @@ export class StatsService {
             : 0,
       };
     }
+
+    // Performance breakdown, measured over solved problems only
+    const solvedProblems = problems.filter((p) => p.status === Status.Solved);
+    const percentOfSolved = (count: number) =>
+      totalSolved > 0 ? Math.round((count / totalSolved) * 100) : 0;
+
+    const byPerformance: Record<string, PerformanceStats> = {};
+    for (const perf of Object.values(Performance)) {
+      const count = solvedProblems.filter((p) => p.performance === perf).length;
+      byPerformance[perf] = { count, percent: percentOfSolved(count) };
+    }
+    const unratedCount = solvedProblems.filter((p) => !p.performance).length;
+    byPerformance[UNRATED_PERFORMANCE] = {
+      count: unratedCount,
+      percent: percentOfSolved(unratedCount),
+    };
 
     // Build category map from filtered problems
     const categoryMap = new Map<string, { name: string; problems: Problem[] }>();
@@ -97,6 +125,13 @@ export class StatsService {
         };
       });
 
-    return { totalProblems, totalSolved, overallCompletionPercent, byDifficulty, byCategory };
+    return {
+      totalProblems,
+      totalSolved,
+      overallCompletionPercent,
+      byDifficulty,
+      byPerformance,
+      byCategory,
+    };
   }
 }

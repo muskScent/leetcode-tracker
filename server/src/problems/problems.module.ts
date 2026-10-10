@@ -9,5 +9,6 @@ import { ProblemsService } from './problems.service';
   imports: [TypeOrmModule.forFeature([Problem, Tag])],
   controllers: [ProblemsController],
   providers: [ProblemsService],
+  exports: [ProblemsService],
 })
 export class ProblemsModule {}
